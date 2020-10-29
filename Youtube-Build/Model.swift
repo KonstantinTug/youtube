@@ -8,7 +8,14 @@
 
 import Foundation
 
+protocol ModelDelegate {
+    func videosFetched(_ videos: [Video])
+}
+
 class Model {
+    
+    var delegate: ModelDelegate?
+    
     func fetchVideos() {
         let url = URL(string: Constants.API_URL)
         
@@ -20,7 +27,6 @@ class Model {
         
         let dataTask = urlSession.dataTask(with: url!) { (data, resp, error) in
             if error != nil || data == nil {
-                print("ER")
                 return
             }
             
@@ -30,7 +36,9 @@ class Model {
                 
                 let response = try decoder.decode(Response.self, from: data!)
                 
-                dump(response)
+                if response.items != nil {
+                    self.delegate?.videosFetched(response.items!)
+                }
                 
             } catch {
                 
